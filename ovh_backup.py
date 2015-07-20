@@ -19,9 +19,8 @@ def get_entry(conf, section, name, option):
     return value
 
 def save_config(conf, config_file):
-   self.hubic_config.set('openstack', 'os_token_expire', self.os_token_expire)
    with open(config_file, 'wb') as configfile:
-       self.hubic_config.write(configfile)
+       conf.write(configfile)
        os.chmod(config_file, 0600)
 
 
@@ -34,13 +33,16 @@ def load_config(backup_conf, config_file):
     except ConfigParser.ParsingError:
         print "Cannot read config file %s" % self.config_file
         sys.exit(1)
-    for section, entries in backup_conf
+    for section, entries in backup_conf.iteritems():
         for entry, defaultValue in entries:
+            # Create section if not exists
+            if not backup_config.has_section(section):
+                backup_config.add_section(section)
             backup_config.set(section, entry, get_entry(backup_config, section, entry, defaultValue))
+    return backup_config 
+configuration = load_config(backup_conf, config_file)
 
-load_config(backup_conf, config_file)
-
-save_config(backup_conf, config_file)
+save_config(configuration, config_file)
 # Ask for missing configuration values
 
 
