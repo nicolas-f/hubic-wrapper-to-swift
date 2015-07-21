@@ -71,11 +71,11 @@ subprocess.call(["tar","-zcvf", tmpfold+"etc.tar.gz", "/home/backup/configs/etc2
  
 # Backup PostgreSQL
 
-#os.environ["PGPASSWORD"] = configuration.get('POSTGRESQL','POSTGRE_PASSWORD')
-#f = open(tmpfold+"pgdump.gz", "wb")
-#ps = subprocess.Popen(("pg_dumpall","-U","pgbackup"), stdout=subprocess.PIPE)
-#output = subprocess.call(('gzip'), stdin=ps.stdout, stdout=f)
-#ps.wait()
+os.environ["PGPASSWORD"] = configuration.get('POSTGRESQL','POSTGRE_PASSWORD')
+f = open(tmpfold+"pgdump.gz", "wb")
+ps = subprocess.Popen(("pg_dumpall","-U","pgbackup"), stdout=subprocess.PIPE)
+output = subprocess.call(('gzip'), stdin=ps.stdout, stdout=f)
+ps.wait()
 
 ##
 # Rotate folder by removing outdated ones (within each time intervals)
@@ -165,6 +165,7 @@ for file in cloud.swift(args).strip().split("\n"):
     hubic_backup_folders[foldertime].append(file)
 
 remove_lst = what_to_remove(fmt, hubic_backup_folders.keys())
+
 # Effectively remove folders
 for remove_fold in remove_lst:
     filesinfold = hubic_backup_folders[remove_fold]
@@ -172,3 +173,11 @@ for remove_fold in remove_lst:
     args = (['delete', 'default'] + filesinfold)
     print(cloud.swift(args))
 
+# Sync with folders (no history backup)
+sync_folders = [
+["/var/www/www.ogrs-community.org/", "ogrs-community_org"]
+]
+
+for fold, dest in sync_folders:
+    args = ['upload', 'default', fold, '--skip-identical','--object-name', 'backupsync/'+dest+"/"]
+    print(cloud.swift(args))
