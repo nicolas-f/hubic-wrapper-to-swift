@@ -458,7 +458,7 @@ class hubic:
 
             cmd = ['swift', "--os-auth-token", self.os_auth_token, '--os-storage-url', self.os_storage_url]
             cmd.extend(args)
-            subprocess.call(cmd)
+            return subprocess.check_output(cmd)
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] -- [swift args]"
@@ -578,5 +578,5 @@ if __name__ == '__main__':
     if options.swift:
         hubic.auth()
         hubic.token()
-        hubic.swift(args)
+        print hubic.swift(args)
 
